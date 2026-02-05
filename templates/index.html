@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management System</title>
+
+    <!-- Link CSS from static folder -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Employee Management System</h2>
+
+    <!-- Add Employee Section -->
+    <div>
+        <input type="text" id="name" placeholder="Employee Name">
+        <input type="text" id="role" placeholder="Employee Role">
+        <button onclick="addEmployee()">Add Employee</button>
+    </div>
+
+    <!-- Employee List -->
+    <h3>Employee List</h3>
+    <ul id="employeeList"></ul>
+
+</div>
+
+<script>
+    function loadEmployees() {
+        fetch("/employees")
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById("employeeList");
+                list.innerHTML = "";
+                data.forEach(emp => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `${emp.name} - ${emp.role}
+                        <button onclick="deleteEmployee(${emp.id})">Delete</button>`;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function addEmployee() {
+        const name = document.getElementById("name").value;
+        const role = document.getElementById("role").value;
+
+        if (!name || !role) {
+            alert("Please enter name and role");
+            return;
+        }
+
+        fetch("/employees", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, role })
+        }).then(() => {
+            document.getElementById("name").value = "";
+            document.getElementById("role").value = "";
+            loadEmployees();
+        });
+    }
+
+    function deleteEmployee(id) {
+        fetch(`/employees/${id}`, {
+            method: "DELETE"
+        }).then(() => loadEmployees());
+    }
+
+    // Load employees on page load
+    loadEmployees();
+</script>
+
+</body>
+</html>

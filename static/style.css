@@ -1,0 +1,66 @@
+/* Reset basic styles */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+/* Page container */
+.container {
+    width: 60%;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 20px 30px;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+h2, h3 {
+    color: #333;
+}
+
+/* Input fields */
+input {
+    padding: 8px;
+    margin: 5px 0;
+    width: 200px;
+}
+
+/* Buttons */
+button {
+    padding: 8px 12px;
+    background-color: #0073e6;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005bb5;
+}
+
+/* Employee list */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: #f1f1f1;
+    margin: 6px 0;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+/* Delete button */
+li button {
+    background-color: #e63946;
+    margin-left: 10px;
+}
+
+li button:hover {
+    background-color: #c1121f;
+}
