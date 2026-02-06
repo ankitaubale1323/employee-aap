@@ -1,0 +1,36 @@
+services:  # Defines all the containers (services) that will run
+  employee-app:  # This is the Flask application container
+    build:  # Build instructions for the Docker image
+      context: .  # The root folder of your project (Docker build context)
+      dockerfile: app/docker/Dockerfile  # Path to the Dockerfile to build this image
+    image: employee-app:latest  # Name and tag of the Docker image created
+    container_name: employee-app-container  # Name of the container when running
+    ports:  # Maps container ports to host machine ports
+      - "5001:5000"  # Host port 5001 → Container port 5000 (Flask runs on 5000)
+    environment:  # Environment variables for the container (used by Flask)
+      DB_HOST: mysql  # Hostname of the MySQL service (matches service name)
+      DB_PORT: 3306  # MySQL port inside container
+      DB_USER: employee_user  # MySQL username
+      DB_PASSWORD: root  # MySQL password (must match MYSQL_PASSWORD)
+      DB_NAME: employee_db  # Database name to connect to
+    depends_on:  # Makes sure this container starts after the listed container(s)
+      - mysql  # Waits for MySQL container to start before Flask container
+    restart: always  # Automatically restart container if it crashes or system reboots
+
+  mysql:  # This is the MySQL database container
+    image: mysql:8.0  # Docker image to use (official MySQL 8.0)
+    container_name: employee-mysql  # Name of the container
+    ports:  # Expose container port to host
+      - "3307:3306"  # Host port 3307 → Container port 3306 (MySQL default port)
+    environment:  # Environment variables for MySQL setup
+      MYSQL_ROOT_PASSWORD: root  # Password for MySQL root user
+      MYSQL_DATABASE: employee_db  # Create this database on first run
+      MYSQL_USER: employee_user  # Create this user on first run
+      MYSQL_PASSWORD: root  # Password for the above user
+    volumes:  # Persist data and initialize database
+      - mysql_data:/var/lib/mysql  # Persist MySQL data in Docker volume
+      - ./app/mysql-init:/docker-entrypoint-initdb.d  # Run SQL scripts on first start
+    restart: always  # Restart MySQL automatically if it crashes or system reboots
+
+volumes:  # Define Docker volumes (persistent storage)
+  mysql_data:  # Volume used to store MySQL database files
