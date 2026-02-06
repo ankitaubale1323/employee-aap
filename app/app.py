@@ -60,7 +60,7 @@ def delete_employee(emp_id):
     )
     db.commit()
     db.close()
-    return jsonify({"message": f"Employee {emp_id} deleted successfully"})
+    return jsonify({"message": f"Employee {emp_id} deleted sucxcessfully"})
 
 # -------------------------
 # PRINT ROUTES & START SERVER
