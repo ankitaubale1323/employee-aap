@@ -1,38 +1,54 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1   # Specifies the API version used to create this Deployment. apps/v1 is standard for Deployments.
+kind: Deployment      # Defines the type of Kubernetes resource. Here, it's a Deployment (manages Pods and scaling).
 metadata:
-  name: flask-app
-  namespace: emp-app
+  name: flask-app     # Name of the Deployment object.
+  namespace: emp-app  # Namespace in which this Deployment will be created. Helps organize resources.
 spec:
-  replicas: 1
+  replicas: 1         # Number of Pod replicas to run. Here, only 1 Pod will be created.
   selector:
     matchLabels:
-      app: flask-app
+      app: flask-app  # Selector tells Deployment which Pods to manage. It will match Pods with this label.
   template:
     metadata:
       labels:
-        app: flask-app
+        app: flask-app  # Labels assigned to Pods. Must match the selector above.
     spec:
       containers:
-      - name: flask-app
-        image: ankitaubale/employee-app:latest
-        env:
+      - name: flask-app        # Name of the container inside the Pod.
+        image: ankitaubale/employee-app:latest  # Docker image to use for this container.
+        imagePullPolicy: Always  # Always pull the latest image from the registry when starting the Pod.
+        env:                    # Environment variables for the container
         - name: MYSQL_HOST
-          value: mysql.emp-app.svc.cluster.local
+          value: mysql.emp-app.svc.cluster.local  # Hostname of the MySQL service inside the cluster.
         - name: MYSQL_USER
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_USER
+              name: mysql-secret      # Name of the Kubernetes Secret containing MySQL credentials.
+              key: MYSQL_USER        # Key inside the Secret that holds the MySQL username.
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_PASSWORD
+              name: mysql-secret      # Secret containing the MySQL password.
+              key: MYSQL_PASSWORD    # Key inside the Secret for the password.
         - name: MYSQL_DATABASE
           valueFrom:
             secretKeyRef:
-              name: mysql-secret
-              key: MYSQL_DATABASE
+              name: mysql-secret      # Secret containing the database name.
+              key: MYSQL_DATABASE    # Key inside the Secret for the database name.
+        - name: MYSQL_PORT
+          value: "3306"               # Port MySQL is running on. Must be a string.
         ports:
-        - containerPort: 5000
+        - containerPort: 5000          # Port that the container exposes (Flask default port).
+          name: http                  # Name of the port. Useful for reference in probes or services.
+        readinessProbe:
+          httpGet:
+            path: /                   # Endpoint to check if the container is ready to serve traffic.
+            port: 5000
+          initialDelaySeconds: 5      # Wait 5 seconds after container starts before first probe.
+          periodSeconds: 10           # Check readiness every 10 seconds.
+        livenessProbe:
+          httpGet:
+            path: /                   # Endpoint to check if the container is alive. If it fails, Pod restarts.
+            port: 5000
+          initialDelaySeconds: 15     # Wait 15 seconds before the first liveness check.
+          periodSeconds: 20           # Check liveness every 20 seconds.
