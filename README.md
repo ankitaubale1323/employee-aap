@@ -466,5 +466,25 @@ This documentation covers **everything** from scratch:
 ![command2](image-3.png)
 ![Command](image-4.png)
 ![output](image.png)
+ImagePullBackOff / ErrImagePull
+
+If you see something like:
+
+ImagePullBackOff
+ErrImagePull
+
+
+This is Kubernetes failing to pull your Docker image. Common reasons:
+
+Wrong image name / tag
+
+Your Deployment uses:
+
+image: ankitaubale/employee-app:latest
+
+
+Ensure this image exists in Docker Hub (or the registry you’re using).
+
+Private repository
 
 
