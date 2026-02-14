@@ -1,0 +1,6 @@
+apiVersion: v2
+name: employee-app
+description: Helm chart for deploying Employee App (Flask + MySQL)
+type: application
+version: 0.1.0
+appVersion: "1.0"

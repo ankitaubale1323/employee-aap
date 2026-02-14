@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "employee-app.fullname" . }}-flask
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "employee-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.flask.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+        {{- include "employee-app.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: flask-app
+        image: "{{ .Values.flask.image.repository }}:{{ .Values.flask.image.tag }}"
+        imagePullPolicy: Always
+        env:
+        - name: MYSQL_HOST
+          value: mysql-headless.{{ .Values.namespace }}.svc.cluster.local
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_DATABASE
+        - name: MYSQL_PORT
+          value: "3306"
+        ports:
+        - containerPort: {{ .Values.flask.service.port }}
+          name: http
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.flask.service.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.flask.service.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
